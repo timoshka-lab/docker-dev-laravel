@@ -1,0 +1,80 @@
+version: '3.6'
+
+services:
+  web:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+      args:
+        - NGINX_VERSION=${NGINX_VERSION}
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NGINX_SERVER_NAME
+      - NGINX_ENABLE_SSL
+      - NGINX_FORCE_HTTPS
+    volumes:
+      - ./docker/nginx/certs:/etc/nginx/certs
+      - ./laravel-app:/var/www/html/laravel-app:delegated
+      - ./phpmyadmin:/var/www/html/phpmyadmin:delegated
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: ./docker/app
+      dockerfile: Dockerfile
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+    environment:
+      - APP_URL
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${MYSQL_DATABASE}
+      - DB_USERNAME=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mail
+      - MAIL_PORT=1025
+      - MAIL_FROM_ADDRESS=${APP_EMAIL}
+      - MAIL_FROM_NAME=Laravel
+    volumes:
+      - ./laravel-app:/var/www/html/laravel-app:delegated
+      - ./phpmyadmin:/var/www/html/phpmyadmin:delegated
+      - ./docker/app/php.ini:/usr/local/etc/php/conf.d/php.ini:cached
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: ./docker/mysql
+      dockerfile: Dockerfile
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    environment:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/docker.cnf:/etc/mysql/conf.d/docker.cnf:cached
+
+  mail:
+    image: mailhog/mailhog
+    container_name: mailhog
+    platform: linux/amd64
+    ports:
+      - "8025:8025"
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
+    volumes:
+      - maildir:/tmp
+    depends_on:
+      - app
+
+volumes:
+  maildir:

@@ -1,0 +1,12 @@
+.env
+
+/phpmyadmin/*
+!/phpmyadmin/public
+/phpmyadmin/public/*
+!/phpmyadmin/public/.gitkeep
+!/phpmyadmin/public/config.inc.php
+
+/laravel-app
+
+/.idea
+/.vscode
