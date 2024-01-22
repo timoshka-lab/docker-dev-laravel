@@ -86,10 +86,10 @@ services:
     ports:
       - "8025:8025"
     environment:
-      MH_STORAGE: maildir
-      MH_MAILDIR_PATH: /tmp
+      - MP_DATA_FILE=/data/mailpit.db
+      - TZ=${TIMEZONE:-Asia/Tokyo}
     volumes:
-      - maildir:/tmp
+      - maildir:/data
     depends_on:
       - app
     networks:
