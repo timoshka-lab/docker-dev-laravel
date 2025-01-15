@@ -40,6 +40,9 @@ if [ "$SKIP_LARAVEL" = false ]; then
     echo "Fixing Laravel permissions..."
     chown -R www-data:www-data $LARAVEL_DIR
   fi
+
+  echo "Installing Laravel dependencies..."
+  composer install --working-dir="$LARAVEL_DIR"
 else
   echo "Skipping WordPress installation..."
 fi
