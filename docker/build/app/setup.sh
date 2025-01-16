@@ -43,6 +43,12 @@ if [ "$SKIP_LARAVEL" = false ]; then
 
   echo "Installing Laravel dependencies..."
   composer install --working-dir="$LARAVEL_DIR"
+
+  echo "Migrating Laravel database..."
+  php "$LARAVEL_DIR/artisan" migrate
+
+  echo "Linking storage directory..."
+  php "$LARAVEL_DIR/artisan" storage:link
 else
   echo "Skipping WordPress installation..."
 fi
